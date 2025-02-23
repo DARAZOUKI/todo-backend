@@ -6,7 +6,7 @@ export class CreateTodoDto {
   title: string;
 
   @IsOptional()
-  @MaxLength(200)
+  @MaxLength(200, { message: 'Description must not exceed 200 characters' })
   description?: string;
 
   @IsOptional()

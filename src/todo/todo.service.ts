@@ -9,9 +9,11 @@ export class TodoService {
   constructor(@InjectModel(Todo.name) private todoModel: Model<TodoDocument>) {}
 
   // Fetch all todos from the database
-  getAll(): Promise<Todo[]> {
-    return this.todoModel.find().exec();
+  async getAll(page = 1, limit = 10): Promise<Todo[]> {
+    const skip = (page - 1) * limit;
+    return this.todoModel.find().skip(skip).limit(limit).exec();
   }
+  
 
   // Create a new todo
   create(todoDto: CreateTodoDto): Promise<Todo> {
@@ -21,18 +23,28 @@ export class TodoService {
 
   
  // Update an existing todo
-async update(id: string, todoDto: CreateTodoDto): Promise<Todo | null> {
+ async update(id: string, todoDto: CreateTodoDto): Promise<Todo | null> {
+  try {
     const updatedTodo = await this.todoModel.findByIdAndUpdate(id, todoDto, { new: true });
-    return updatedTodo; // Ensure the updated todo with _id is returned
+    if (!updatedTodo) {
+      throw new NotFoundException(`Todo with ID ${id} not found`);
+    }
+    return updatedTodo;
+  } catch (error) {
+    throw new Error(`Error updating todo: ${error.message}`);
   }
+}
 
-  // Delete a todo by ID
-  async delete(id: string): Promise<Todo> {
+async delete(id: string): Promise<Todo> {
+  try {
     const todo = await this.todoModel.findByIdAndDelete(id).exec();
     if (!todo) {
-      throw new NotFoundException('Todo not found');
+      throw new NotFoundException(`Todo with ID ${id} not found`);
     }
     return todo;
+  } catch (error) {
+    throw new Error(`Error deleting todo: ${error.message}`);
   }
+}
 }
 

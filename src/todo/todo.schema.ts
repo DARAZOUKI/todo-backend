@@ -8,7 +8,7 @@ export class Todo {
   @Prop({ required: true, minlength: 3 })
   title: string;
 
-  @Prop({ maxlength: 200 })
+  @Prop({ required: true, maxlength: 200 })
   description?: string;
 
   @Prop({ enum: ['Not started', 'Ongoing', 'Completed'], default: 'Not started' })
